@@ -1,18 +1,4 @@
 syntax: glob
-desktop.ini
 obj/
-*.suo
-*.sln.cache
-*.orig
+bin/
 *.user
-*.ReSharper
-*Thumbs.db
-build
-buildazure
-buildtasks
-artifacts
-robots.txt
-syntax: regexp
-(?i)src/.*bin/.*
-src/Orchard.Web/App_Data(?!.*/Localization|/Sites).+
-src/Orchard.Web/Media/(?!Web.config|OrchardLogo.png).+
