@@ -1,4 +1,4 @@
-﻿Name: Lombiq.ArchivedLinks
+﻿Name: Archived Links
 AntiForgery: enabled
 Author: Lombiq
 Website: http://orchardproject.net
