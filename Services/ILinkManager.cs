@@ -11,12 +11,9 @@ namespace Lombiq.ArchivedLinks.Services
 {
     public interface ILinkManager : IDependency
     {
-        IEnumerable<LinkRecord> GetLinks();
+        //void SaveLink(string originalUrl);
+        void SaveLink(LinkPart linkPart);
 
-        LinkRecord GetLink(int id);
-
-        LinkRecord GetLink(string url);
-
-        string SaveLink(string originalUrl, IStorageProvider storageProvider);
+        string GetPublicUrl(int id);
     }
 }
