@@ -12,8 +12,10 @@ namespace Lombiq.ArchivedLinks.Services
     public interface ILinkManager : IDependency
     {
         //void SaveLink(string originalUrl);
-        void SaveLink(LinkPart linkPart);
+        string SaveLink(LinkPart linkPart);
 
         string GetPublicUrl(int id);
+
+        string CheckJumpUrl(string url);
     }
 }

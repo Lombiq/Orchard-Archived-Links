@@ -1,9 +1,1 @@
-﻿@*@{
-    var part = (Lombiq.ArchivedLinks.Models.LinkPart)Model.ContentPart;
-}
-
-@part.OriginalUrl*@
-
-<a href="@Model.PublicUrl" target="_blank">Snapshot of @Model.OriginalUrl</a>
-<br />
-Original Url: <a href="@Model.OriginalUrl">@Model.OriginalUrl</a>
+﻿<a href="@Model.Url" target="_blank">@Model.Url</a>

@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Lombiq.ArchivedLinks.Models;
+using Orchard.ContentManagement;
 using Orchard.Data;
 using Orchard.FileSystems.Media;
 using System;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Lombiq.ArchivedLinks.Services
@@ -14,16 +16,19 @@ namespace Lombiq.ArchivedLinks.Services
     public class LinkPartManager : ILinkManager
     {
         private readonly IStorageProvider _storageProvider;
+        private readonly IContentManager _contentManager;
         private WebClient _client;
 
-        public LinkPartManager(IStorageProvider storageProvider)
+        public LinkPartManager(IStorageProvider storageProvider, IContentManager contentManager)
         {
             _storageProvider = storageProvider;
+            _contentManager = contentManager;
         }
 
-        public void SaveLink(LinkPart linkPart)
+        public string SaveLink(LinkPart linkPart)
         {
             Archiving(linkPart);
+            return "ArchivedLink-Jump-"+linkPart.Id.ToString();
         }
 
         public string GetPublicUrl(int id)
@@ -31,17 +36,56 @@ namespace Lombiq.ArchivedLinks.Services
             return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", id.ToString()), "index.html"));
         }
 
+        public string CheckJumpUrl(string jumpUrl)
+        {
+            // _ArchivedLinks/ID/index.html
+            // /ArchivedLink-Jump-id
+
+            var jumpUrlPattern = new Regex(@"^ArchivedLink-Jump-\d+$", RegexOptions.IgnoreCase);
+            if (jumpUrlPattern.Match(jumpUrl).Success) 
+            {
+                var pieces = jumpUrl.Split(new[] { '-' });
+                var id = int.Parse(pieces[2]);
+
+                var contenPart = _contentManager.Get(id).As<LinkPart>();
+
+                if (contenPart == null)
+                    return String.Empty;
+
+                HttpWebResponse response = null;
+                var originalUrl = contenPart.OriginalUrl;
+                var request = (HttpWebRequest)WebRequest.Create(originalUrl);
+                request.Method = "HEAD";
+
+
+                try
+                {
+                    // if no exception (status is '200 OK' return original url)
+                    response = (HttpWebResponse)request.GetResponse();
+                    return originalUrl;
+                }
+                catch (WebException)
+                {
+                    // if status is not '200 OK'
+                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", id.ToString()), "index.html"));
+                }
+            }
+
+            return String.Empty;
+        }
+
+
+
 
         private void Archiving(LinkPart linkPart)
         {
             linkPart.FolderPath = _storageProvider.Combine("_ArchivedLinks", linkPart.Id.ToString());
 
             var currentUrl = linkPart.OriginalUrl;
-            if (String.IsNullOrEmpty(currentUrl)) return;
+            if (String.IsNullOrEmpty(currentUrl))
+                return;
 
             var currentFolderPath = linkPart.FolderPath;
-
-
 
             if (!_storageProvider.FolderExists(currentFolderPath))
                 _storageProvider.CreateFolder(currentFolderPath);
@@ -54,6 +98,8 @@ namespace Lombiq.ArchivedLinks.Services
             htmlWeb.Get(currentUrl, "/");
 
             var indexPath = _storageProvider.Combine(currentFolderPath, "index.html");
+            if (_storageProvider.FileExists(indexPath))
+                _storageProvider.DeleteFile(indexPath);
             var stream = _storageProvider.CreateFile(indexPath).OpenWrite();
             document.Save(stream);
         }
@@ -115,13 +161,15 @@ namespace Lombiq.ArchivedLinks.Services
                 for (var i = 0; i < folderPieces.Length-1; i++)
                     destinationFolder = _storageProvider.Combine(destinationFolder, folderPieces[i]);
 
-                // _storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", linkPart.Id.ToString()), Path.GetDirectoryName(currentUri.LocalPath));
-                // var destinationFolder = _storageProvider.Combine(linkPart.FolderPath, Path.GetDirectoryName());
                 if (!_storageProvider.FolderExists(destinationFolder))
                     _storageProvider.CreateFolder(destinationFolder);
 
                 var filename = Path.GetFileName(currentUri.LocalPath);
                 var destinationFile = _storageProvider.Combine(destinationFolder, filename);
+
+                if (_storageProvider.FileExists(destinationFile)) 
+                    _storageProvider.DeleteFile(destinationFile);
+
                 byte[] fileData = _client.DownloadData(currentUri);
 
                 if (!_storageProvider.FileExists(destinationFile))
@@ -148,8 +196,5 @@ namespace Lombiq.ArchivedLinks.Services
             return String.Empty;
         }
 
-
-
-        
     }
 }

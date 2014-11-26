@@ -22,10 +22,16 @@ namespace Lombiq.ArchivedLinks.Drivers
         {
             return ContentShape("Parts_Link", ()=>
             {
-                return shapeHelper.Parts_Link(
-                    PublicUrl: _linkManager.GetPublicUrl(part.Id),
-                    OriginalUrl: part.OriginalUrl
-                );
+                string url;
+                if (!String.IsNullOrEmpty(_linkManager.CheckJumpUrl("ArchivedLink-Jump-" + part.Id.ToString())))
+                {
+                    url = part.OriginalUrl;
+                }
+                else {
+                    url = _linkManager.GetPublicUrl(part.Id);
+                }
+
+                return shapeHelper.Parts_Link(Url: url);
             });
         }
 

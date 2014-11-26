@@ -14,18 +14,6 @@ namespace Lombiq.ArchivedLinks
     {
         public int Create()
         {
-            //SchemaBuilder.CreateTable(typeof(LinkPart).Name,
-            //        table => table
-            //            .ContentPartRecord()
-            //            .Column<string>("OriginalUrl")
-            //            .Column<string>("FolderPath")
-            //            .Column<DateTime>("LastModified", column => column.Nullable().WithDefault(null))
-            //            .Column<DateTime>("Created", column => column.WithDefault(DateTime.Now))
-            //        );
-
-            //ContentDefinitionManager.AlterPartDefinition(typeof(LinkPart).Name,
-            //    part => part.Attachable());
-
             ContentDefinitionManager.AlterTypeDefinition("Link",
                 cfg => cfg
                     .WithPart(typeof(LinkPart).Name)
