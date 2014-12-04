@@ -4,6 +4,7 @@ using Orchard.ContentManagement.Records;
 using Orchard.Core.Common.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Web;
 
@@ -22,6 +23,5 @@ namespace Lombiq.ArchivedLinks.Models
             get { return this.Retrieve(p => p.FolderPath); }
             set { this.Store(p => p.FolderPath, value); }
         }
-
     }
 }

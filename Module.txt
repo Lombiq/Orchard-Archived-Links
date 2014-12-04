@@ -1,8 +1,12 @@
 ﻿Name: Archived Links
 AntiForgery: enabled
 Author: Lombiq
-Website: http://orchardproject.net
+Website: http://lombiq.com
 Version: 1.0
-OrchardVersion: 1.0
-Description: Takes a snapshot from your site
-Category: Content
+OrchardVersion: 1.8
+Description: Backuping web resources
+Features:
+	Lombiq.ArchivedLinks
+		Name: Archived Links
+		Description: Takes a snapshot from a given site
+		Category: Content

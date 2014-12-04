@@ -1,7 +1,9 @@
 ﻿using HtmlAgilityPack;
 using Lombiq.ArchivedLinks.Models;
+using Orchard;
 using Orchard.ContentManagement;
 using Orchard.Data;
+using Orchard.Environment;
 using Orchard.FileSystems.Media;
 using System;
 using System.Collections.Generic;
@@ -17,65 +19,72 @@ namespace Lombiq.ArchivedLinks.Services
     {
         private readonly IStorageProvider _storageProvider;
         private readonly IContentManager _contentManager;
+        private readonly IWorkContextAccessor _workContextAccessor;
         private WebClient _client;
 
-        public LinkPartManager(IStorageProvider storageProvider, IContentManager contentManager)
+        public LinkPartManager(IStorageProvider storageProvider, IContentManager contentManager, IWorkContextAccessor workContextAccessor)
         {
             _storageProvider = storageProvider;
             _contentManager = contentManager;
+            _workContextAccessor = workContextAccessor;
         }
 
-        public string SaveLink(LinkPart linkPart)
+        public void SaveLink(LinkPart linkPart)
         {
             Archiving(linkPart);
-            return "ArchivedLink-Jump-"+linkPart.Id.ToString();
         }
 
         public string GetPublicUrl(int id)
         {
             return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", id.ToString()), "index.html"));
         }
-
-        public string CheckJumpUrl(string jumpUrl)
+        
+        public string CheckUrl(string url)
         {
-            // _ArchivedLinks/ID/index.html
-            // /ArchivedLink-Jump-id
+            var checkUri = new Uri(url);
 
-            var jumpUrlPattern = new Regex(@"^ArchivedLink-Jump-\d+$", RegexOptions.IgnoreCase);
-            if (jumpUrlPattern.Match(jumpUrl).Success) 
+            var links = _contentManager.Query().ForPart<LinkPart>().List().Select(uri => new
             {
-                var pieces = jumpUrl.Split(new[] { '-' });
-                var id = int.Parse(pieces[2]);
-
-                var contenPart = _contentManager.Get(id).As<LinkPart>();
-
-                if (contenPart == null)
-                    return String.Empty;
-
-                HttpWebResponse response = null;
-                var originalUrl = contenPart.OriginalUrl;
-                var request = (HttpWebRequest)WebRequest.Create(originalUrl);
-                request.Method = "HEAD";
+                OriginalUrl = new Uri(uri.OriginalUrl),
+                Id = uri.Id
+            });
 
 
-                try
+            if(links != null)
+            {
+                foreach (var uri in links)
                 {
-                    // if no exception (status is '200 OK' return original url)
-                    response = (HttpWebResponse)request.GetResponse();
-                    return originalUrl;
-                }
-                catch (WebException)
-                {
-                    // if status is not '200 OK'
-                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", id.ToString()), "index.html"));
-                }
+                    if (uri.OriginalUrl.Equals(checkUri)) {
+                        HttpWebResponse response = null;
+                        var originalUrl = uri.OriginalUrl;
+                        var request = (HttpWebRequest)WebRequest.Create(originalUrl);
+                        request.Method = "HEAD";
+
+                        try
+                        {
+                            // if no exception (status is '200 OK' return original url)
+                            response = (HttpWebResponse)request.GetResponse();
+                            return uri.OriginalUrl.ToString();
+                        }
+                        catch (WebException)
+                        {
+                            // if status is not '200 OK'
+                            return GetPublicUrl(uri.Id);
+                        }
+                    }
+                }   
             }
 
             return String.Empty;
         }
 
-
-
+        public string UseJumpUrl(string jumpUrl)
+        {
+            var uriBase = new Uri(_workContextAccessor.GetContext().CurrentSite.BaseUrl);
+            var uri = new Uri(uriBase, jumpUrl);
+            var uriParam = HttpUtility.ParseQueryString(uri.Query).Get("originalUrl");
+            return String.IsNullOrEmpty(uriParam) ? String.Empty : CheckUrl(uriParam);
+        }
 
         private void Archiving(LinkPart linkPart)
         {

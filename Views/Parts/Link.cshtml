@@ -1,1 +1,19 @@
-﻿<a href="@Model.Url" target="_blank">@Model.Url</a>
+﻿<fieldset>
+    <ol>
+        <li>
+            @T("Original Url:")
+            <br />
+            <a href="@Model.OriginalUrl" target="_blank">@Model.OriginalUrl</a>
+        </li>
+        <li>
+            @T("Snapshot:")
+            <br />
+            <a href="@Model.SnapshotUrl" target="_blank">@Model.SnapshotUrl</a>
+        </li>
+        <li>
+            @T("Jump Url (use this string as parameter for method UseJumpUrl):")
+            <br />
+            @Model.JumpUrl
+        </li>
+    </ol>
+</fieldset>

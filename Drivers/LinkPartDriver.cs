@@ -13,25 +13,22 @@ namespace Lombiq.ArchivedLinks.Drivers
     {
         private readonly ILinkManager _linkManager;
 
+
         public LinkPartDriver(ILinkManager linkManager)
         {
             _linkManager = linkManager;
         }
 
+
         protected override DriverResult Display(LinkPart part, string displayType, dynamic shapeHelper)
         {
-            return ContentShape("Parts_Link", ()=>
+            return ContentShape("Parts_Link", () =>
             {
-                string url;
-                if (!String.IsNullOrEmpty(_linkManager.CheckJumpUrl("ArchivedLink-Jump-" + part.Id.ToString())))
-                {
-                    url = part.OriginalUrl;
-                }
-                else {
-                    url = _linkManager.GetPublicUrl(part.Id);
-                }
-
-                return shapeHelper.Parts_Link(Url: url);
+                return shapeHelper.Parts_Link(
+                    OriginalUrl: part.OriginalUrl,
+                    JumpUrl: "/archived-link?originalUrl=" + part.OriginalUrl,
+                    SnapshotUrl: _linkManager.GetPublicUrl(part.Id)
+                );
             });
         }
 

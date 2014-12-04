@@ -1,4 +1,10 @@
 ﻿@model Lombiq.ArchivedLinks.Models.LinkPart
 
-@Html.LabelFor(m => m.OriginalUrl)
-@Html.EditorFor(m => m.OriginalUrl)
+<fieldset>
+    <ol>
+        <li>
+            @Html.LabelFor(m => m.OriginalUrl)
+            @Html.EditorFor(m => m.OriginalUrl)
+        </li>
+    </ol>
+</fieldset>

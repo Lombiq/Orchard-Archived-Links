@@ -107,7 +107,6 @@
     <Compile Include="ContentMigrations.cs" />
     <Compile Include="Drivers\LinkPartDriver.cs" />
     <Compile Include="Models\LinkPart.cs" />
-    <Compile Include="Models\LinkRecord.cs" />
     <Compile Include="Services\ILinkManager.cs" />
     <Compile Include="Services\LinkManager.cs" />
   </ItemGroup>
