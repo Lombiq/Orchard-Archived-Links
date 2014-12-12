@@ -2,6 +2,7 @@
 using Lombiq.ArchivedLinks.Services;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
+using Orchard.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +12,16 @@ namespace Lombiq.ArchivedLinks.Drivers
 {
     public class LinkPartDriver : ContentPartDriver<LinkPart>
     {
-        private readonly ILinkManager _linkManager;
+        private readonly ISnapshotManager _snapshotManager;
 
 
-        public LinkPartDriver(ILinkManager linkManager)
+        public Localizer T { get; set; }
+
+
+        public LinkPartDriver(ISnapshotManager snapshotManager)
         {
-            _linkManager = linkManager;
+            _snapshotManager = snapshotManager;
+            T = NullLocalizer.Instance;
         }
 
 
@@ -26,8 +31,7 @@ namespace Lombiq.ArchivedLinks.Drivers
             {
                 return shapeHelper.Parts_Link(
                     OriginalUrl: part.OriginalUrl,
-                    JumpUrl: "/archived-link?originalUrl=" + part.OriginalUrl,
-                    SnapshotUrl: _linkManager.GetPublicUrl(part.Id)
+                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPubliUrl(part.OriginalUrl)
                 );
             });
         }
@@ -45,9 +49,20 @@ namespace Lombiq.ArchivedLinks.Drivers
         {
             if (updater.TryUpdateModel(part, Prefix, null, null))
             {
-                _linkManager.SaveLink(part);
+                try
+                {
+                    _snapshotManager.SaveLink(part.OriginalUrl);
+                }
+                catch (UriFormatException)
+                {
+                    updater.AddModelError("UriFormatException", T("There was a problem with the given url: {0}", part.OriginalUrl));
+                }
+                catch (Exception ex)
+                {
+                    updater.AddModelError("Exception", T("There was a problem while saving your url: {0}", ex.Message));
+                }
             }
-            return Editor(part, updater, shapeHelper);
+            return Editor(part, shapeHelper);
         }
     }
 }
