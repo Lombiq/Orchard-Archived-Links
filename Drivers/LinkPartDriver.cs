@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Orchard.Exceptions;
 
 namespace Lombiq.ArchivedLinks.Drivers
 {
@@ -14,13 +15,13 @@ namespace Lombiq.ArchivedLinks.Drivers
     {
         private readonly ISnapshotManager _snapshotManager;
 
-
         public Localizer T { get; set; }
 
 
         public LinkPartDriver(ISnapshotManager snapshotManager)
         {
             _snapshotManager = snapshotManager;
+
             T = NullLocalizer.Instance;
         }
 
@@ -59,7 +60,9 @@ namespace Lombiq.ArchivedLinks.Drivers
                 }
                 catch (Exception ex)
                 {
-                    updater.AddModelError("Exception", T("There was a problem while saving your url: {0}", ex.Message));
+                    if (ex.IsFatal()) throw;
+
+                    updater.AddModelError("Exception", T("There was a problem while saving your url"));
                 }
             }
             return Editor(part, shapeHelper);

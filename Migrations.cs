@@ -10,7 +10,7 @@ using System.Web;
 
 namespace Lombiq.ArchivedLinks
 {
-    public class ContentMigrations : DataMigrationImpl
+    public class Migrations : DataMigrationImpl
     {
         public int Create()
         {
