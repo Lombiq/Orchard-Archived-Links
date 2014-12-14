@@ -13,93 +13,72 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Security.Cryptography;
 using System.Text;
+using Orchard.Environment.Extensions;
 
 namespace Lombiq.ArchivedLinks.Services
 {
+    [OrchardFeature("Lombiq.ArchivedLinks")]
     public class SnapshotManager : ISnapshotManager
     {
         private WebClient _client;
 
         private readonly IStorageProvider _storageProvider;
-
-        private readonly IWorkContextAccessor _workContextAccessor;
         
 
-        public SnapshotManager(IStorageProvider storageProvider, IWorkContextAccessor workContextAccessor)
+        public SnapshotManager(IStorageProvider storageProvider)
         {
             _storageProvider = storageProvider;
-            _workContextAccessor = workContextAccessor;
         }
 
 
-        public void SaveLink(string url)
+        public void SaveLink(Uri uri)
         {
-            try
+            var urlString = uri.ToString();
+
+            // This folder will be created before download process will copy files into it
+            var folderPath = _storageProvider.Combine("_ArchivedLinks", urlString.GetHashCode().ToString());
+
+            var contentType = GetContentType(uri);
+
+            switch (contentType)
             {
-                var uriBuilder = new UriBuilder(url);
+                case "application/pdf":
+                case "image/jpeg":
+                case "image/jpg":
+                case "image/png":
+                case "image/gif":
+                    DownloadFile(urlString, uri, folderPath, true);
+                    break;
 
-                var urlString = uriBuilder.Uri.ToString();
+                case "text/html":
 
-                var folderPath = _storageProvider.Combine("_ArchivedLinks", GetHash(urlString));
+                    var htmlWeb = new HtmlWeb();
+                    var document = htmlWeb.Load(urlString);
 
-                if (!_storageProvider.FolderExists(folderPath)) _storageProvider.CreateFolder(folderPath);
+                    DownloadHtml(ref document, uri, folderPath);
+                    htmlWeb.Get(urlString, "/");
 
-                var contentType = GetContentType(uriBuilder.Uri);
+                    var indexPath = _storageProvider.Combine(folderPath, "index.html");
+                    if (_storageProvider.FileExists(indexPath)) _storageProvider.DeleteFile(indexPath);
 
-                switch (contentType)
-                {
-                    case "application/pdf":
-                    case "image/jpeg":
-                    case "image/jpg":
-                    case "image/png":
-                    case "image/gif":
-                        DownloadFile(urlString, uriBuilder.Uri, folderPath, true);
-                        break;
+                    var stream = _storageProvider.CreateFile(indexPath).OpenWrite();
+                    document.Save(stream);
+                    stream.Close();
 
-                    case "text/html":
-                        var htmlWeb = new HtmlWeb();
+                    break;
 
-                        var document = htmlWeb.Load(urlString);
-
-                        DownloadHtml(ref document, uriBuilder.Uri, folderPath);
-
-                        htmlWeb.Get(urlString, "/");
-
-                        var indexPath = _storageProvider.Combine(folderPath, "index.html");
-
-                        if (_storageProvider.FileExists(indexPath)) _storageProvider.DeleteFile(indexPath);
-
-                        var stream = _storageProvider.CreateFile(indexPath).OpenWrite();
-
-                        document.Save(stream);
-
-                        stream.Close();
-
-                        break;
-
-                    default:
-                        throw new Exception("Url type not supported");
-                }
-            }
-            catch (UriFormatException ex)
-            {
-                throw new UriFormatException("Url can not be empty", ex);
-            }
-            catch (Exception)
-            {
-                throw;
+                default:
+                    throw new Exception("Uri type not supported");
             }
 
-            
+            if (_client != null) _client.Dispose();
         }
 
-        public string GetSnapshotIndexPubliUrl(string url)
+        public string GetSnapshotIndexPublicUrl(Uri uri)
         {
-            var uriBuilder = new UriBuilder(url);
+            var contentType = GetContentType(uri);
 
-            var contentType = GetContentType(uriBuilder.Uri);
-
-            var uriString = uriBuilder.Uri.ToString();
+            var uriString = uri.ToString();
 
             switch (contentType)
             {
@@ -109,58 +88,35 @@ namespace Lombiq.ArchivedLinks.Services
                 case "image/png":
                 case "image/gif":
 
-                    var filename = Path.GetFileName(uriBuilder.Uri.LocalPath);
-
-                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", GetHash(uriString)), filename));
+                    var filename = Path.GetFileName(uri.LocalPath);
+                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), filename));
 
                 case "text/html":
-                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", GetHash(uriString)), "index.html"));
+                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), "index.html"));
 
                 default:
-                    return String.Empty;
-
+                    return string.Empty;
             }            
         }
 
-        public bool CheckUrlAvailable(string url)
+        public bool CheckUriIsAvailable(Uri uri)
         {
-            var uriBuilder = new UriBuilder(url);
-
-            HttpWebResponse response = null;
-
-            var request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri.ToString());
-
+            var request = (HttpWebRequest)WebRequest.Create(uri.ToString());
             request.Method = "HEAD";
 
             try
             {
-                // if no exception (status is '2xx' return original url)
-                response = (HttpWebResponse)request.GetResponse();
-
+                // If no exception the status code is '2xx', so return true.
+                request.GetResponse();
                 return true;
             }
             catch (WebException)
             {
-                // if status is not '2xx'
+                // If status is not '2xx' return false.
                 return false;
             }
         }
 
-
-        private string GetHash(string url)
-        {
-            using (var md5Hash = MD5.Create())
-            {
-                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(url));
-
-                var stringBuilder = new StringBuilder();
-
-                for (int i = 0; i < data.Length; i++)
-                    stringBuilder.Append(data[i].ToString("x2"));
-
-                return stringBuilder.ToString();
-            }
-        }
 
         private void DownloadHtml(ref HtmlDocument document, Uri uri, string folderPath)
         {
@@ -175,7 +131,7 @@ namespace Lombiq.ArchivedLinks.Services
 
             var resources = stylesheets.Concat(pdfs).Concat(images);
 
-            // to skip duplication:
+            // To skip duplication:
             var storedResources = new Dictionary<string, string>();
 
             foreach (var resource in resources)
@@ -183,18 +139,17 @@ namespace Lombiq.ArchivedLinks.Services
                 var attrName = resource.Attributes["href"] != null ? "href" : "src";
                 var source = resource.Attributes[attrName].Value;
 
-                // Resource not downloaded yet
+                // Resource not downloaded yet.
                 if (!storedResources.ContainsKey(source))
                 {
                     var downloadedFile = DownloadFile(source, uri, folderPath);
-                    if (downloadedFile != String.Empty)
+                    if (downloadedFile != string.Empty)
                     {
                         resource.Attributes[attrName].Value = downloadedFile;
                         storedResources.Add(source, downloadedFile);
                     }
                 }
-
-                // Resource already downloaded
+                // Resource already downloaded.
                 else
                 {
                     resource.Attributes[attrName].Value = storedResources[source];
@@ -205,50 +160,38 @@ namespace Lombiq.ArchivedLinks.Services
         private string DownloadFile(string source, Uri uri, string folderPath, bool isSingleFile = false)
         {
             if (_client == null) _client = new WebClient();
+            var destinationFolder = folderPath;
 
-            try
+            var currentUri = new Uri(uri, source);
+
+            if (!isSingleFile)
             {
-                string destinationFolder = folderPath;
+                var folderPieces = currentUri.LocalPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
-                var currentUri = new Uri(uri, source);
-
-                if (!isSingleFile)
+                for (var i = 0; i < folderPieces.Length - 1; i++)
                 {
-                    var folderPieces = currentUri.LocalPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                    for (var i = 0; i < folderPieces.Length - 1; i++)
-                    {
-                        destinationFolder = _storageProvider.Combine(destinationFolder, folderPieces[i]);
-                    }
+                    destinationFolder = _storageProvider.Combine(destinationFolder, folderPieces[i]);
                 }
-
-                if (!_storageProvider.FolderExists(destinationFolder)) _storageProvider.CreateFolder(destinationFolder);
-
-                var filename = Path.GetFileName(currentUri.LocalPath);
-
-                var destinationFile = _storageProvider.Combine(destinationFolder, filename);
-
-                if (_storageProvider.FileExists(destinationFile)) _storageProvider.DeleteFile(destinationFile);
-
-                byte[] fileData = _client.DownloadData(currentUri);
-
-                if (!_storageProvider.FileExists(destinationFile))
-                {
-                    var stream = _storageProvider.CreateFile(destinationFile).OpenWrite();
-
-                    stream.Write(fileData, 0, fileData.Length);
-
-                    stream.Close();
-                }
-
-                if (_storageProvider.FileExists(destinationFile))
-                    _storageProvider.GetPublicUrl(destinationFile);
             }
-            catch (Exception)
-            {
-                if (isSingleFile) throw;
-            }
-            return String.Empty;
+
+            if (!_storageProvider.FolderExists(destinationFolder)) _storageProvider.CreateFolder(destinationFolder);
+
+            var filename = Path.GetFileName(currentUri.LocalPath);
+            var destinationFile = _storageProvider.Combine(destinationFolder, filename);
+
+            if (_storageProvider.FileExists(destinationFile)) _storageProvider.DeleteFile(destinationFile);
+
+            var fileData = _client.DownloadData(currentUri);
+
+            var stream = _storageProvider.CreateFile(destinationFile).OpenWrite();
+            stream.Write(fileData, 0, fileData.Length);
+            stream.Close();
+
+            // If file creation successful
+            if (_storageProvider.FileExists(destinationFile))
+                return _storageProvider.GetPublicUrl(destinationFile);
+
+            return string.Empty;
         }
 
         private string GetContentType(Uri uri)
@@ -256,11 +199,12 @@ namespace Lombiq.ArchivedLinks.Services
             try
             {
                 var request = (HttpWebRequest)WebRequest.Create(uri.ToString());
-
                 request.Method = "HEAD";
 
                 var response = (HttpWebResponse)request.GetResponse();
 
+                // If the content is html the content type maybe contains extra informations
+                // eg: 'text/html;charset=UTF-8'. This is why Contains method is necessary.
                 if (response.ContentType.ToLower().Contains("text/html"))
                     return "text/html";
 
@@ -268,9 +212,8 @@ namespace Lombiq.ArchivedLinks.Services
             }
             catch
             {
-                return String.Empty;
+                return string.Empty;
             }
         }
-
     }
 }

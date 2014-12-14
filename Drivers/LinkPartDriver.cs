@@ -8,9 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Orchard.Exceptions;
+using Orchard.Environment.Extensions;
 
 namespace Lombiq.ArchivedLinks.Drivers
 {
+    [OrchardFeature("Lombiq.ArchivedLinks")]
     public class LinkPartDriver : ContentPartDriver<LinkPart>
     {
         private readonly ISnapshotManager _snapshotManager;
@@ -30,9 +32,11 @@ namespace Lombiq.ArchivedLinks.Drivers
         {
             return ContentShape("Parts_Link", () =>
             {
+                var uriBuilder = new UriBuilder(part.OriginalUrl);
+
                 return shapeHelper.Parts_Link(
                     OriginalUrl: part.OriginalUrl,
-                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPubliUrl(part.OriginalUrl)
+                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uriBuilder.Uri)
                 );
             });
         }
@@ -52,7 +56,8 @@ namespace Lombiq.ArchivedLinks.Drivers
             {
                 try
                 {
-                    _snapshotManager.SaveLink(part.OriginalUrl);
+                    var uriBuilder = new UriBuilder(part.OriginalUrl);
+                    _snapshotManager.SaveLink(uriBuilder.Uri);
                 }
                 catch (UriFormatException)
                 {
@@ -62,7 +67,7 @@ namespace Lombiq.ArchivedLinks.Drivers
                 {
                     if (ex.IsFatal()) throw;
 
-                    updater.AddModelError("Exception", T("There was a problem while saving your url"));
+                    updater.AddModelError("Exception", T("Unknown problem while saving your url."));
                 }
             }
             return Editor(part, shapeHelper);

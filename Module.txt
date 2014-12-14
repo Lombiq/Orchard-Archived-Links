@@ -10,3 +10,8 @@ Features:
 		Name: Archived Links
 		Description: Takes a snapshot from a given site
 		Category: Content
+	Lombiq.ArchivedLinks.Frontend
+		Name: Archived Links Frontend
+		Description: Simple user frontend to allow both anonymous and authorized users to take a snapshot from a given site
+		Category: Content
+		Dependencies: Lombiq.ArchivedLinks

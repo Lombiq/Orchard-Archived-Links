@@ -2,6 +2,7 @@
 using Orchard.ContentManagement.FieldStorage.InfosetStorage;
 using Orchard.ContentManagement.Records;
 using Orchard.Core.Common.Utilities;
+using Orchard.Environment.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Web;
 
 namespace Lombiq.ArchivedLinks.Models
 {
+    [OrchardFeature("Lombiq.ArchivedLinks")]
     public class LinkPart : ContentPart
     {
         public string OriginalUrl

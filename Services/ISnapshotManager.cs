@@ -1,5 +1,6 @@
 ﻿using Lombiq.ArchivedLinks.Models;
 using Orchard;
+using Orchard.Environment.Extensions;
 using Orchard.FileSystems.Media;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,8 @@ using System.Threading.Tasks;
 namespace Lombiq.ArchivedLinks.Services
 {
     /// <summary>
-    /// Making backup from web resources (websites, images, pdfs)
+    /// Making backup from web resources (websites, images, pdfs).
+    /// The result is a copy on your server what you can use if the original source is down.
     /// </summary>
     public interface ISnapshotManager : IDependency
     {
@@ -18,21 +20,21 @@ namespace Lombiq.ArchivedLinks.Services
         /// This method implements the archiving process.
         /// Creates directories, copies files from their original place.
         /// </summary>
-        /// <param name="url">The url to save</param>
-        void SaveLink(string url);
+        /// <param name="uri">The uri to save.</param>
+        void SaveLink(Uri uri);
 
         /// <summary>
-        /// Searches and returns the saved url
+        /// Searches and returns the saved uri.
         /// </summary>
-        /// <param name="url">The url to check whether it has been archived</param>
-        /// <returns>Public url of the snapshot or empty if url not saved</returns>
-        string GetSnapshotIndexPubliUrl(string url);
+        /// <param name="uri">The uri to check whether it has been archived.</param>
+        /// <returns>Public uri of the snapshot or empty if uri not saved.</returns>
+        string GetSnapshotIndexPublicUrl(Uri uri);
 
         /// <summary>
-        /// Checks if the given url is available
+        /// Checks whether the given uri is available.
         /// </summary>
-        /// <param name="url">url to check</param>
-        /// <returns>If original url is available it will be returned</returns>
-        bool CheckUrlAvailable(string url);
+        /// <param name="uri">Uri to check.</param>
+        /// <returns>True if the original uri is available.</returns>
+        bool CheckUriIsAvailable(Uri uri);
     }
 }
