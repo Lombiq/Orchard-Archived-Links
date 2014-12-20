@@ -92,18 +92,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\ArchivingLinkController.cs" />
     <Compile Include="Migrations.cs" />
     <Compile Include="Drivers\LinkPartDriver.cs" />
     <Compile Include="Models\LinkPart.cs" />
     <Compile Include="Services\ISnapshotManager.cs" />
     <Compile Include="Services\SnapshotManager.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\ArchivingLink\Snapshot.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\ArchivingLink\Index.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
