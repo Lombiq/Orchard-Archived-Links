@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 namespace Lombiq.ArchivedLinks.Services
 {
     /// <summary>
-    /// Making backup from web resources (websites, images, pdfs).
-    /// The result is a copy on your server what you can use if the original source is down.
+    /// Makes backup from web resources (websites, images, pdfs).
+    /// The result is a copy on your server what you can present the user if the original source is down.
     /// </summary>
     public interface ISnapshotManager : IDependency
     {
