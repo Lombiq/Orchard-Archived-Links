@@ -11,7 +11,6 @@ using System.Web;
 
 namespace Lombiq.ArchivedLinks.Models
 {
-    [OrchardFeature("Lombiq.ArchivedLinks")]
     public class LinkPart : ContentPart
     {
         public string OriginalUrl

@@ -4,14 +4,9 @@ Author: Lombiq
 Website: http://lombiq.com
 Version: 1.0
 OrchardVersion: 1.8
-Description: Backuping web resources
+Description: Backing up web resources. Based on a url saves the html page associated images, css and pdf files. The services provides a url where you can found a copy of the original url. You can use this url instead of the original url. The service checks if the original is available and as a result redirects to the correct location.
 Features:
 	Lombiq.ArchivedLinks
 		Name: Archived Links
 		Description: Takes a snapshot from a given site
 		Category: Content
-	Lombiq.ArchivedLinks.Frontend
-		Name: Archived Links Frontend
-		Description: Simple user frontend to allow both anonymous and authorized users to take a snapshot from a given site
-		Category: Content
-		Dependencies: Lombiq.ArchivedLinks

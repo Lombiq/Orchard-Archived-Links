@@ -11,7 +11,6 @@ using System.Web;
 
 namespace Lombiq.ArchivedLinks
 {
-    [OrchardFeature("Lombiq.ArchivedLinks")]
     public class Migrations : DataMigrationImpl
     {
         public int Create()

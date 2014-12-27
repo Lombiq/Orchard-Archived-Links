@@ -12,7 +12,6 @@ using Orchard.Environment.Extensions;
 
 namespace Lombiq.ArchivedLinks.Drivers
 {
-    [OrchardFeature("Lombiq.ArchivedLinks")]
     public class LinkPartDriver : ContentPartDriver<LinkPart>
     {
         private readonly ISnapshotManager _snapshotManager;
@@ -43,7 +42,7 @@ namespace Lombiq.ArchivedLinks.Drivers
 
         protected override DriverResult Editor(LinkPart part, dynamic shapeHelper)
         {
-            return ContentShape("Parts_Link_Edit", 
+            return ContentShape("Parts_Link_Edit",
                 () => shapeHelper.EditorTemplate(
                     TemplateName: "Parts.Link",
                     Model: part,

@@ -17,17 +17,16 @@ using Orchard.Environment.Extensions;
 
 namespace Lombiq.ArchivedLinks.Services
 {
-    [OrchardFeature("Lombiq.ArchivedLinks")]
     public class SnapshotManager : ISnapshotManager
     {
-        private WebClient _client;
-
         private readonly IStorageProvider _storageProvider;
-        
+        private readonly IWorkContextAccessor _workContextAccessor;
 
-        public SnapshotManager(IStorageProvider storageProvider)
+
+        public SnapshotManager(IStorageProvider storageProvider, IWorkContextAccessor workContextAccessor)
         {
             _storageProvider = storageProvider;
+            _workContextAccessor = workContextAccessor;
         }
 
 
@@ -51,7 +50,6 @@ namespace Lombiq.ArchivedLinks.Services
                     break;
 
                 case "text/html":
-
                     var htmlWeb = new HtmlWeb();
                     var document = htmlWeb.Load(urlString);
 
@@ -64,14 +62,11 @@ namespace Lombiq.ArchivedLinks.Services
                     var stream = _storageProvider.CreateFile(indexPath).OpenWrite();
                     document.Save(stream);
                     stream.Close();
-
                     break;
 
                 default:
                     throw new Exception("Uri type not supported");
             }
-
-            if (_client != null) _client.Dispose();
         }
 
         public string GetSnapshotIndexPublicUrl(Uri uri)
@@ -87,7 +82,6 @@ namespace Lombiq.ArchivedLinks.Services
                 case "image/jpg":
                 case "image/png":
                 case "image/gif":
-
                     var filename = Path.GetFileName(uri.LocalPath);
                     return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), filename));
 
@@ -96,7 +90,7 @@ namespace Lombiq.ArchivedLinks.Services
 
                 default:
                     return string.Empty;
-            }            
+            }
         }
 
         public bool CheckUriIsAvailable(Uri uri)
@@ -159,18 +153,18 @@ namespace Lombiq.ArchivedLinks.Services
 
         private string DownloadFile(string source, Uri uri, string folderPath, bool isSingleFile = false)
         {
-            if (_client == null) _client = new WebClient();
+
             var destinationFolder = folderPath;
 
             var currentUri = new Uri(uri, source);
 
             if (!isSingleFile)
             {
-                var folderPieces = currentUri.LocalPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                var folderSegments = currentUri.LocalPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
-                for (var i = 0; i < folderPieces.Length - 1; i++)
+                for (var i = 0; i < folderSegments.Length - 1; i++)
                 {
-                    destinationFolder = _storageProvider.Combine(destinationFolder, folderPieces[i]);
+                    destinationFolder = _storageProvider.Combine(destinationFolder, folderSegments[i]);
                 }
             }
 
@@ -181,11 +175,14 @@ namespace Lombiq.ArchivedLinks.Services
 
             if (_storageProvider.FileExists(destinationFile)) _storageProvider.DeleteFile(destinationFile);
 
-            var fileData = _client.DownloadData(currentUri);
+            using (var _client = new WebClient())
+            {
+                var fileData = _client.DownloadData(currentUri);
 
-            var stream = _storageProvider.CreateFile(destinationFile).OpenWrite();
-            stream.Write(fileData, 0, fileData.Length);
-            stream.Close();
+                var stream = _storageProvider.CreateFile(destinationFile).OpenWrite();
+                stream.Write(fileData, 0, fileData.Length);
+                stream.Close();
+            }
 
             // If file creation successful
             if (_storageProvider.FileExists(destinationFile))
@@ -196,24 +193,17 @@ namespace Lombiq.ArchivedLinks.Services
 
         private string GetContentType(Uri uri)
         {
-            try
-            {
-                var request = (HttpWebRequest)WebRequest.Create(uri.ToString());
-                request.Method = "HEAD";
+            var request = (HttpWebRequest)WebRequest.Create(uri.ToString());
+            request.Method = "HEAD";
 
-                var response = (HttpWebResponse)request.GetResponse();
+            var response = (HttpWebResponse)request.GetResponse();
 
-                // If the content is html the content type maybe contains extra informations
-                // eg: 'text/html;charset=UTF-8'. This is why Contains method is necessary.
-                if (response.ContentType.ToLower().Contains("text/html"))
-                    return "text/html";
+            // If the content is html the content type maybe contains extra informations
+            // eg: 'text/html;charset=UTF-8'. This is why Contains method is necessary.
+            if (response.ContentType.ToLower().Contains("text/html"))
+                return "text/html";
 
-                return response.ContentType.ToLower();
-            }
-            catch
-            {
-                return string.Empty;
-            }
+            return response.ContentType.ToLower();
         }
     }
 }

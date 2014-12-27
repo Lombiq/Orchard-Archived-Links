@@ -1,4 +1,13 @@
-﻿<fieldset>
+﻿@{
+    var routeValues = new RouteValueDictionary();
+
+    routeValues.Add("area", "Lombiq.ArchivedLinks");
+    routeValues.Add("action", "Index");
+    routeValues.Add("controller", "ArchivedLink");
+    routeValues.Add("originalUrl", Model.OriginalUrl);
+}
+
+<fieldset>
     <ol>
         <li>
             @T("Original Url:")
@@ -9,6 +18,11 @@
             @T("Snapshot:")
             <br />
             <a href="@Model.SnapshotUrl" target="_blank">@Model.SnapshotUrl</a>
+        </li>
+        <li>
+            @T("Jump Url:")
+            <br />
+            <a href="@Url.RouteUrl(routeValues)">@Url.RouteUrl(routeValues)</a>
         </li>
     </ol>
 </fieldset>
