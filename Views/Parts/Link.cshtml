@@ -10,19 +10,13 @@
 <fieldset>
     <ol>
         <li>
-            @T("Original Url:")
-            <br />
-            <a href="@Model.OriginalUrl" target="_blank">@Model.OriginalUrl</a>
+            @T("Original Url: {0}", Html.Link((string)Model.OriginalUrl, (string)Model.OriginalUrl))
         </li>
         <li>
-            @T("Snapshot:")
-            <br />
-            <a href="@Model.SnapshotUrl" target="_blank">@Model.SnapshotUrl</a>
+            @T("Snapshot: {0}", Html.Link((string)Model.SnapshotUrl, (string)Model.SnapshotUrl))
         </li>
         <li>
-            @T("Jump Url:")
-            <br />
-            <a href="@Url.RouteUrl(routeValues)">@Url.RouteUrl(routeValues)</a>
+            @T("Jump Url: {0}", Html.Link(Url.RouteUrl(routeValues), Url.RouteUrl(routeValues)))
         </li>
     </ol>
 </fieldset>

@@ -31,11 +31,15 @@ namespace Lombiq.ArchivedLinks.Drivers
         {
             return ContentShape("Parts_Link", () =>
             {
-                var uriBuilder = new UriBuilder(part.OriginalUrl);
+                Uri uri;
+                if (!Uri.TryCreate(part.OriginalUrl, UriKind.Absolute, out uri))
+                {
+                    uri = new Uri(String.Format("http://{0}", part.OriginalUrl), UriKind.Absolute);
+                }
 
                 return shapeHelper.Parts_Link(
-                    OriginalUrl: part.OriginalUrl,
-                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uriBuilder.Uri)
+                    OriginalUrl: uri.ToString(),
+                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri)
                 );
             });
         }
@@ -55,8 +59,11 @@ namespace Lombiq.ArchivedLinks.Drivers
             {
                 try
                 {
-                    var uriBuilder = new UriBuilder(part.OriginalUrl);
-                    _snapshotManager.SaveLink(uriBuilder.Uri);
+                    Uri uri;
+                    if (!Uri.TryCreate(part.OriginalUrl, UriKind.Absolute, out uri)) {
+                        uri = new Uri(String.Format("http://{0}", part.OriginalUrl), UriKind.Absolute);
+                    }
+                    _snapshotManager.SaveLink(uri);
                 }
                 catch (UriFormatException)
                 {

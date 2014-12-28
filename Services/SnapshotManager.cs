@@ -20,13 +20,11 @@ namespace Lombiq.ArchivedLinks.Services
     public class SnapshotManager : ISnapshotManager
     {
         private readonly IStorageProvider _storageProvider;
-        private readonly IWorkContextAccessor _workContextAccessor;
 
 
         public SnapshotManager(IStorageProvider storageProvider, IWorkContextAccessor workContextAccessor)
         {
             _storageProvider = storageProvider;
-            _workContextAccessor = workContextAccessor;
         }
 
 
@@ -39,33 +37,30 @@ namespace Lombiq.ArchivedLinks.Services
 
             var contentType = GetContentType(uri);
 
-            switch (contentType)
+            var allowableFileContentTypes = new string[] { "application/pdf", "image/jpeg", "image/jpg", "image/png", "image/gif" };
+            if (allowableFileContentTypes.Contains(contentType))
             {
-                case "application/pdf":
-                case "image/jpeg":
-                case "image/jpg":
-                case "image/png":
-                case "image/gif":
-                    DownloadFile(urlString, uri, folderPath, true);
-                    break;
+                DownloadFile(urlString, uri, folderPath, true);
+            }
+            else if (contentType == "text/html")
+            {
+                var htmlWeb = new HtmlWeb();
+                var document = htmlWeb.Load(urlString);
 
-                case "text/html":
-                    var htmlWeb = new HtmlWeb();
-                    var document = htmlWeb.Load(urlString);
+                DownloadHtml(ref document, uri, folderPath);
+                htmlWeb.Get(urlString, "/");
 
-                    DownloadHtml(ref document, uri, folderPath);
-                    htmlWeb.Get(urlString, "/");
+                var indexPath = _storageProvider.Combine(folderPath, "index.html");
+                if (_storageProvider.FileExists(indexPath)) _storageProvider.DeleteFile(indexPath);
 
-                    var indexPath = _storageProvider.Combine(folderPath, "index.html");
-                    if (_storageProvider.FileExists(indexPath)) _storageProvider.DeleteFile(indexPath);
-
-                    var stream = _storageProvider.CreateFile(indexPath).OpenWrite();
+                using (var stream = _storageProvider.CreateFile(indexPath).OpenWrite())
+                {
                     document.Save(stream);
-                    stream.Close();
-                    break;
-
-                default:
-                    throw new Exception("Uri type not supported");
+                }
+            }
+            else
+            {
+                throw new NotSupportedException("Uri type not supported");
             }
         }
 
@@ -75,21 +70,19 @@ namespace Lombiq.ArchivedLinks.Services
 
             var uriString = uri.ToString();
 
-            switch (contentType)
+            var allowableFileContentTypes = new string[] { "application/pdf", "image/jpeg", "image/jpg", "image/png", "image/gif" };
+            if (allowableFileContentTypes.Contains(contentType))
             {
-                case "application/pdf":
-                case "image/jpeg":
-                case "image/jpg":
-                case "image/png":
-                case "image/gif":
-                    var filename = Path.GetFileName(uri.LocalPath);
-                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), filename));
-
-                case "text/html":
-                    return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), "index.html"));
-
-                default:
-                    return string.Empty;
+                var filename = Path.GetFileName(uri.LocalPath);
+                return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), filename));
+            }
+            else if (contentType == "text/html")
+            {
+                return _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), "index.html"));
+            }
+            else
+            {
+                return string.Empty;
             }
         }
 
@@ -149,11 +142,12 @@ namespace Lombiq.ArchivedLinks.Services
                     resource.Attributes[attrName].Value = storedResources[source];
                 }
             }
+
+            
         }
 
         private string DownloadFile(string source, Uri uri, string folderPath, bool isSingleFile = false)
         {
-
             var destinationFolder = folderPath;
 
             var currentUri = new Uri(uri, source);
@@ -178,10 +172,10 @@ namespace Lombiq.ArchivedLinks.Services
             using (var _client = new WebClient())
             {
                 var fileData = _client.DownloadData(currentUri);
-
-                var stream = _storageProvider.CreateFile(destinationFile).OpenWrite();
-                stream.Write(fileData, 0, fileData.Length);
-                stream.Close();
+                using (var stream = _storageProvider.CreateFile(destinationFile).OpenWrite())
+                {
+                    stream.Write(fileData, 0, fileData.Length);
+                }
             }
 
             // If file creation successful
@@ -198,7 +192,7 @@ namespace Lombiq.ArchivedLinks.Services
 
             var response = (HttpWebResponse)request.GetResponse();
 
-            // If the content is html the content type maybe contains extra informations
+            // If the content is html the content type may contain extra information
             // eg: 'text/html;charset=UTF-8'. This is why Contains method is necessary.
             if (response.ContentType.ToLower().Contains("text/html"))
                 return "text/html";

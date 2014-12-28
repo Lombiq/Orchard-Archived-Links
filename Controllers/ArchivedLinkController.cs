@@ -20,15 +20,19 @@ namespace Lombiq.ArchivedLinks.Controllers
 
         public ActionResult Index(string originalUrl)
         {
-            var uriBuilder = new UriBuilder(originalUrl);
-
-            if (_snapshotManager.CheckUriIsAvailable(uriBuilder.Uri))
+            Uri uri;
+            if (!Uri.TryCreate(originalUrl, UriKind.Absolute, out uri))
             {
-                return Redirect(uriBuilder.Uri.ToString());
+                uri = new Uri(String.Format("http://{0}", originalUrl), UriKind.Absolute);
+            }
+
+            if (_snapshotManager.CheckUriIsAvailable(uri))
+            {
+                return Redirect(uri.ToString());
             }
             else
             {
-                return Redirect(_snapshotManager.GetSnapshotIndexPublicUrl(uriBuilder.Uri));
+                return Redirect(_snapshotManager.GetSnapshotIndexPublicUrl(uri));
             }
         }
     }
