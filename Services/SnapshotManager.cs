@@ -104,6 +104,16 @@ namespace Lombiq.ArchivedLinks.Services
             }
         }
 
+        public void RemoveLink(Uri uri)
+        {
+            var folderPath = _storageProvider.Combine("_ArchivedLinks", uri.ToString().GetHashCode().ToString());
+
+            if (_storageProvider.FolderExists(folderPath))
+            {
+                _storageProvider.DeleteFolder(folderPath);
+            }
+        }
+
 
         private void DownloadHtml(ref HtmlDocument document, Uri uri, string folderPath)
         {
@@ -143,7 +153,15 @@ namespace Lombiq.ArchivedLinks.Services
                 }
             }
 
-            
+            // Adding timestamp to be able to establish when the snapshot was taken
+            var documentBody = document.DocumentNode.SelectSingleNode("//body");
+            if (documentBody != null)
+            {
+                var dateNode = document.CreateElement("div");
+                dateNode.InnerHtml = String.Format("Snapshot taken at {0}", DateTime.UtcNow);
+                dateNode.SetAttributeValue("stlye", "width:100%; z-index:99999; position:absolute; color:red;");
+                documentBody.PrependChild(dateNode);
+            }
         }
 
         private string DownloadFile(string source, Uri uri, string folderPath, bool isSingleFile = false)
