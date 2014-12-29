@@ -35,7 +35,7 @@ namespace Lombiq.ArchivedLinks.Services
         /// </summary>
         /// <param name="uri">Uri to check.</param>
         /// <returns>True if the original uri is available.</returns>
-        bool CheckUriIsAvailable(Uri uri);
+        Task<bool> CheckUriIsAvailable(Uri uri);
 
         /// <summary>
         /// Removes the snapshot of the given uri.

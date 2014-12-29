@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -18,7 +19,7 @@ namespace Lombiq.ArchivedLinks.Controllers
         }
 
 
-        public ActionResult Index(string originalUrl)
+        public async Task<ActionResult> Index(string originalUrl)
         {
             Uri uri;
             if (!Uri.TryCreate(originalUrl, UriKind.Absolute, out uri))
@@ -26,14 +27,7 @@ namespace Lombiq.ArchivedLinks.Controllers
                 uri = new Uri(String.Format("http://{0}", originalUrl), UriKind.Absolute);
             }
 
-            if (_snapshotManager.CheckUriIsAvailable(uri))
-            {
-                return Redirect(uri.ToString());
-            }
-            else
-            {
-                return Redirect(_snapshotManager.GetSnapshotIndexPublicUrl(uri));
-            }
+            return Redirect(await _snapshotManager.CheckUriIsAvailable(uri) ? uri.ToString() : _snapshotManager.GetSnapshotIndexPublicUrl(uri));
         }
     }
 }

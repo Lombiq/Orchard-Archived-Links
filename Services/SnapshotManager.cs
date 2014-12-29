@@ -14,6 +14,7 @@ using System.Web;
 using System.Security.Cryptography;
 using System.Text;
 using Orchard.Environment.Extensions;
+using System.Threading.Tasks;
 
 namespace Lombiq.ArchivedLinks.Services
 {
@@ -22,7 +23,7 @@ namespace Lombiq.ArchivedLinks.Services
         private readonly IStorageProvider _storageProvider;
 
 
-        public SnapshotManager(IStorageProvider storageProvider, IWorkContextAccessor workContextAccessor)
+        public SnapshotManager(IStorageProvider storageProvider)
         {
             _storageProvider = storageProvider;
         }
@@ -86,15 +87,15 @@ namespace Lombiq.ArchivedLinks.Services
             }
         }
 
-        public bool CheckUriIsAvailable(Uri uri)
+        public async Task<bool> CheckUriIsAvailable(Uri uri)
         {
-            var request = (HttpWebRequest)WebRequest.Create(uri.ToString());
+            var request = WebRequest.Create(uri.ToString());
             request.Method = "HEAD";
 
             try
             {
                 // If no exception the status code is '2xx', so return true.
-                request.GetResponse();
+                await request.GetResponseAsync();
                 return true;
             }
             catch (WebException)
@@ -157,9 +158,9 @@ namespace Lombiq.ArchivedLinks.Services
             var documentBody = document.DocumentNode.SelectSingleNode("//body");
             if (documentBody != null)
             {
-                var dateNode = document.CreateElement("div");
+                var dateNode = document.CreateElement("p");
                 dateNode.InnerHtml = String.Format("Snapshot taken at {0}", DateTime.UtcNow);
-                dateNode.SetAttributeValue("stlye", "width:100%; z-index:99999; position:absolute; color:red;");
+                dateNode.SetAttributeValue("style", "width: 100%;z-index: 99999;position: absolute;background-color:white; color:black;");
                 documentBody.PrependChild(dateNode);
             }
         }
