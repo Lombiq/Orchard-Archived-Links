@@ -38,7 +38,7 @@ namespace Lombiq.ArchivedLinks.Drivers
                 }
 
                 return shapeHelper.Parts_Link(
-                    OriginalUrl: uri.ToString(),
+                    OriginalUrl: part.OriginalUrl,
                     SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri)
                 );
             });
@@ -60,7 +60,8 @@ namespace Lombiq.ArchivedLinks.Drivers
                 try
                 {
                     Uri uri;
-                    if (!Uri.TryCreate(part.OriginalUrl, UriKind.Absolute, out uri)) {
+                    if (!Uri.TryCreate(part.OriginalUrl, UriKind.Absolute, out uri))
+                    {
                         uri = new Uri(String.Format("http://{0}", part.OriginalUrl), UriKind.Absolute);
                     }
                     _snapshotManager.SaveLink(uri);
@@ -76,6 +77,7 @@ namespace Lombiq.ArchivedLinks.Drivers
                     updater.AddModelError("Exception", T("Unknown problem while saving your url."));
                 }
             }
+
             return Editor(part, shapeHelper);
         }
     }

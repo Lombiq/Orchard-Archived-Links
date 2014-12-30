@@ -99,9 +99,11 @@
     <Compile Include="Models\LinkPart.cs" />
     <Compile Include="Services\ISnapshotManager.cs" />
     <Compile Include="Services\SnapshotManager.cs" />
+    <Compile Include="ViewModels\SnapshotIframeViewModel.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Views\ArchivedLink\" />
+    <Content Include="Views\ArchivedLink\Index.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

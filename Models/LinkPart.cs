@@ -18,11 +18,5 @@ namespace Lombiq.ArchivedLinks.Models
             get { return this.Retrieve(p => p.OriginalUrl); }
             set { this.Store(p => p.OriginalUrl, value); }
         }
-
-        public string FolderPath
-        {
-            get { return this.Retrieve(p => p.FolderPath); }
-            set { this.Store(p => p.FolderPath, value); }
-        }
     }
 }
