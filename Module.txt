@@ -10,8 +10,3 @@ Features:
 		Name: Archived Links
 		Description: Based on a url saves the html page, its associated images, css and pdf files. The services provides a url that you can use instead of the original resource's url: here the service checks if the original source is available and either redirect to there or returns a previously saved snapshot.
 		Category: Content
-	Lombiq.ArchivedLinks.Frontend
-		Name: Archived Links Frontend
-		Description: Simple user frontend to allow both anonymous and authorized users to take a snapshot from a given site
-		Category: Content
-		Dependencies: Lombiq.ArchivedLinks
