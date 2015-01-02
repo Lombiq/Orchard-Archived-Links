@@ -15,9 +15,20 @@ namespace Lombiq.ArchivedLinks
     {
         public int Create()
         {
-            ContentDefinitionManager.AlterTypeDefinition("Link",
+            SchemaBuilder.CreateTable(typeof(ArchivedLinkPartRecord).Name,
+                table => table
+                    .ContentPartRecord()
+                    .Column<string>("OriginalUrl")
+                )
+            .AlterTable(typeof(ArchivedLinkPartRecord).Name,
+                table => table
+                    .CreateIndex("OriginalUrlIndex", new string[] { "OriginalUrl" })
+                );
+
+            ContentDefinitionManager.AlterTypeDefinition("ArchivedLink",
                 cfg => cfg
-                    .WithPart(typeof(LinkPart).Name)
+                    .DisplayedAs("Archived Link")
+                    .WithPart(typeof(ArchivedLinkPart).Name)
                     .WithPart("CommonPart")
                     .Creatable()
                     .Draftable());

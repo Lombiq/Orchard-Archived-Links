@@ -1,0 +1,19 @@
+﻿@{
+    var originalUrl = Lombiq.ArchivedLinks.Helpers.UriBuilderHelper.TryCreateUri((string)Model.OriginalUrl).ToString();
+    var snapshotUrl = (string)Model.SnapshotUrl;
+    var jumpUrl = Url.Action("Index", "ArchivedLink", new { Area = "Lombiq.ArchivedLinks", OriginalUrl = Model.OriginalUrl });
+}
+
+<fieldset>
+    <ol>
+        <li>
+            @T("Original Url: {0}", Html.Link(originalUrl, originalUrl))
+        </li>
+        <li>
+            @T("Snapshot: {0}", Html.Link(snapshotUrl, snapshotUrl))
+        </li>
+        <li>
+            @T("Jump Url: {0}", Html.Link(jumpUrl, jumpUrl))
+        </li>
+    </ol>
+</fieldset>

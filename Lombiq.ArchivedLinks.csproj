@@ -78,8 +78,8 @@
     <Content Include="Styles\Web.config" />
     <Content Include="Properties\AssemblyInfo.cs" />
     <Content Include="Module.txt" />
-    <Content Include="Views\Parts\Link.cshtml" />
-    <Content Include="Views\EditorTemplates\Parts.Link.cshtml" />
+    <Content Include="Views\Parts\ArchivedLink.cshtml" />
+    <Content Include="Views\EditorTemplates\Parts.ArchivedLink.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Orchard\Orchard.Framework.csproj">
@@ -93,14 +93,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ArchivedLinkController.cs" />
-    <Compile Include="Handlers\LinkHandler.cs" />
+    <Compile Include="Handlers\ArchivedLinkHandler.cs" />
+    <Compile Include="Helpers\ArchivedLinkHelper.cs" />
+    <Compile Include="Helpers\UriBuilderHelper.cs" />
     <Compile Include="Migrations.cs" />
-    <Compile Include="Drivers\LinkPartDriver.cs" />
-    <Compile Include="Models\LinkPart.cs" />
+    <Compile Include="Drivers\ArchivedLinkPartDriver.cs" />
+    <Compile Include="Models\ArchivedLinkPart.cs" />
     <Compile Include="Services\ISnapshotManager.cs" />
     <Compile Include="Services\SnapshotManager.cs" />
     <Compile Include="ViewModels\SnapshotIframeViewModel.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Views\ArchivedLink\Index.cshtml" />
   </ItemGroup>

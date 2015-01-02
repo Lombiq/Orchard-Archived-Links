@@ -1,7 +1,7 @@
 ﻿<Placement>
   <Match DisplayType="Detail">
-    <Place Parts_Link="Content:10"/>
+    <Place Parts_ArchivedLink="Content:10"/>
   </Match>
   
-  <Place Parts_Link_Edit="Content:10"/>  
+  <Place Parts_ArchivedLink_Edit="Content:10"/>  
 </Placement>

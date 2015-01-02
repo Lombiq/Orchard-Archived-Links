@@ -1,7 +1,7 @@
-﻿@model Lombiq.ArchivedLinks.ViewModels.SnapshotIframeViewModel
+﻿@model Lombiq.ArchivedLinks.ViewModels.SnapshotViewModel
 
-<p>
+<header>
     @T("Snapshot taken at: {0}", Model.SnapshotTaken)
-</p>
-<br />
+</header>
+
 <iframe src="@Model.SnapshotIndexPublicUrl"></iframe>

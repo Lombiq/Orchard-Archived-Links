@@ -1,4 +1,5 @@
-﻿using Lombiq.ArchivedLinks.Models;
+﻿using Lombiq.ArchivedLinks.Helpers;
+using Lombiq.ArchivedLinks.Models;
 using Lombiq.ArchivedLinks.Services;
 using Lombiq.ArchivedLinks.ViewModels;
 using Orchard.ContentManagement;
@@ -29,34 +30,37 @@ namespace Lombiq.ArchivedLinks.Controllers
 
         public async Task<ActionResult> Index(string originalUrl)
         {
-            Uri uri;
-            if (!Uri.TryCreate(originalUrl, UriKind.Absolute, out uri))
+            try
             {
-                uri = new Uri(String.Format("http://{0}", originalUrl), UriKind.Absolute);
-            }
+                Uri uri = UriBuilderHelper.TryCreateUri(originalUrl);
 
-            if (await _snapshotManager.CheckUriIsAvailable(uri))
-            {
-                return Redirect(uri.ToString());
-            }
-            else
-            {
-                var linkContentItem = _contentManager.Query(VersionOptions.Latest).ForPart<LinkPart>().List()
-                    .Where(link => link.OriginalUrl == originalUrl).FirstOrDefault();
-
-                if (linkContentItem != null)
+                if (await _snapshotManager.CheckUriIsAvailable(uri))
                 {
-                    var linkCommonPart = _contentManager.Get<CommonPart>(linkContentItem.Id, VersionOptions.Latest);
-                    var snapshotTaken = linkCommonPart.ModifiedUtc == null ? linkCommonPart.CreatedUtc : linkCommonPart.ModifiedUtc;
-
-                    return View(new SnapshotIframeViewModel
-                    {
-                        SnapshotIndexPublicUrl = _snapshotManager.GetSnapshotIndexPublicUrl(uri),
-                        SnapshotTaken = (DateTime)snapshotTaken
-                    });
+                    return Redirect(uri.ToString());
                 }
+                else
+                {
+                    var archivedLinkPart = _contentManager.Query().Where<ArchivedLinkPartRecord>(link => link.OriginalUrl == originalUrl).List().FirstOrDefault();
+                    if (archivedLinkPart != null)
+                    {
+                        var commonPart = archivedLinkPart.As<CommonPart>();
+                        if (commonPart != null)
+                        {
+                            var snapshotTaken = commonPart.ModifiedUtc == null ? commonPart.CreatedUtc : commonPart.ModifiedUtc;
+                            return View(new SnapshotViewModel
+                            {
+                                SnapshotIndexPublicUrl = _snapshotManager.GetSnapshotIndexPublicUrl(uri),
+                                SnapshotTaken = (DateTime)snapshotTaken
+                            });
+                        }
+                    }
 
-                throw new Exception();
+                    throw new Exception();
+                }
+            }
+            catch (UriFormatException)
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest, "Bad Request");
             }
         }
     }
