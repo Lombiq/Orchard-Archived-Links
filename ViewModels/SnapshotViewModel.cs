@@ -5,10 +5,10 @@ using System.Web;
 
 namespace Lombiq.ArchivedLinks.ViewModels
 {
-    public class SnapshotIframeViewModel
+    public class SnapshotViewModel
     {
         public DateTime SnapshotTaken { get; set; }
 
-        public string SnapshotIndexPublicUrl { get; set; }
+        public Uri SnapshotIndexPublicUrl { get; set; }
     }
 }

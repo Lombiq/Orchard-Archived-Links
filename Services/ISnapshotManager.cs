@@ -21,14 +21,14 @@ namespace Lombiq.ArchivedLinks.Services
         /// Creates directories, copies files from their original place.
         /// </summary>
         /// <param name="uri">The uri to save.</param>
-        void SaveLink(Uri uri);
+        void SaveSnapshot(Uri uri);
 
         /// <summary>
         /// Searches and returns the saved uri.
         /// </summary>
         /// <param name="uri">The uri to check whether it has been archived.</param>
         /// <returns>Public uri of the snapshot or empty if uri not saved.</returns>
-        string GetSnapshotIndexPublicUrl(Uri uri);
+        Uri GetSnapshotIndexPublicUrl(Uri uri);
 
         /// <summary>
         /// Checks whether the given uri is available.
@@ -41,6 +41,6 @@ namespace Lombiq.ArchivedLinks.Services
         /// Removes the snapshot of the given uri.
         /// </summary>
         /// <param name="uri">Uri to remove.</param>
-        void RemoveLink(Uri uri);
+        void RemoveSnapshot(Uri uri);
     }
 }

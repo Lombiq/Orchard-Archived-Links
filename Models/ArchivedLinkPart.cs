@@ -6,17 +6,23 @@ using Orchard.Environment.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
 namespace Lombiq.ArchivedLinks.Models
 {
-    public class LinkPart : ContentPart
+    public class ArchivedLinkPartRecord : ContentPartRecord
+    {
+        public virtual string OriginalUrl { get; set; }
+    }
+
+    public class ArchivedLinkPart : ContentPart<ArchivedLinkPartRecord>
     {
         public string OriginalUrl
         {
-            get { return this.Retrieve(p => p.OriginalUrl); }
-            set { this.Store(p => p.OriginalUrl, value); }
+            get { return Retrieve(x => x.OriginalUrl); }
+            set { Store(x => x.OriginalUrl, value); }
         }
     }
 }

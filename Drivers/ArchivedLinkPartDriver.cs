@@ -9,17 +9,18 @@ using System.Linq;
 using System.Web;
 using Orchard.Exceptions;
 using Orchard.Environment.Extensions;
+using Lombiq.ArchivedLinks.Helpers;
 
 namespace Lombiq.ArchivedLinks.Drivers
 {
-    public class LinkPartDriver : ContentPartDriver<LinkPart>
+    public class ArchivedLinkPartDriver : ContentPartDriver<ArchivedLinkPart>
     {
         private readonly ISnapshotManager _snapshotManager;
 
         public Localizer T { get; set; }
 
 
-        public LinkPartDriver(ISnapshotManager snapshotManager)
+        public ArchivedLinkPartDriver(ISnapshotManager snapshotManager)
         {
             _snapshotManager = snapshotManager;
 
@@ -27,44 +28,35 @@ namespace Lombiq.ArchivedLinks.Drivers
         }
 
 
-        protected override DriverResult Display(LinkPart part, string displayType, dynamic shapeHelper)
+        protected override DriverResult Display(ArchivedLinkPart part, string displayType, dynamic shapeHelper)
         {
-            return ContentShape("Parts_Link", () =>
+            return ContentShape("Parts_ArchivedLink", () =>
             {
-                Uri uri;
-                if (!Uri.TryCreate(part.OriginalUrl, UriKind.Absolute, out uri))
-                {
-                    uri = new Uri(String.Format("http://{0}", part.OriginalUrl), UriKind.Absolute);
-                }
-
-                return shapeHelper.Parts_Link(
+                Uri uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
+                return shapeHelper.Parts_ArchivedLink(
                     OriginalUrl: part.OriginalUrl,
-                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri)
+                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri).ToString()
                 );
             });
         }
 
-        protected override DriverResult Editor(LinkPart part, dynamic shapeHelper)
+        protected override DriverResult Editor(ArchivedLinkPart part, dynamic shapeHelper)
         {
-            return ContentShape("Parts_Link_Edit",
+            return ContentShape("Parts_ArchivedLink_Edit",
                 () => shapeHelper.EditorTemplate(
-                    TemplateName: "Parts.Link",
+                    TemplateName: "Parts.ArchivedLink",
                     Model: part,
                     Prefix: Prefix));
         }
 
-        protected override DriverResult Editor(LinkPart part, IUpdateModel updater, dynamic shapeHelper)
+        protected override DriverResult Editor(ArchivedLinkPart part, IUpdateModel updater, dynamic shapeHelper)
         {
             if (updater.TryUpdateModel(part, Prefix, null, null))
             {
                 try
                 {
-                    Uri uri;
-                    if (!Uri.TryCreate(part.OriginalUrl, UriKind.Absolute, out uri))
-                    {
-                        uri = new Uri(String.Format("http://{0}", part.OriginalUrl), UriKind.Absolute);
-                    }
-                    _snapshotManager.SaveLink(uri);
+                    Uri uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
+                    _snapshotManager.SaveSnapshot(uri);
                 }
                 catch (UriFormatException)
                 {
