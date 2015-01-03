@@ -101,7 +101,7 @@
     <Compile Include="Models\ArchivedLinkPart.cs" />
     <Compile Include="Services\ISnapshotManager.cs" />
     <Compile Include="Services\SnapshotManager.cs" />
-    <Compile Include="ViewModels\SnapshotIframeViewModel.cs" />
+    <Compile Include="ViewModels\SnapshotViewModel.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
