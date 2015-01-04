@@ -32,7 +32,7 @@ namespace Lombiq.ArchivedLinks.Controllers
         {
             try
             {
-                Uri uri = UriBuilderHelper.TryCreateUri(originalUrl);
+                var uri = UriBuilderHelper.TryCreateUri(originalUrl);
 
                 if (await _snapshotManager.CheckUriIsAvailable(uri))
                 {
@@ -40,10 +40,10 @@ namespace Lombiq.ArchivedLinks.Controllers
                 }
                 else
                 {
-                    var archivedLinkPart = _contentManager.Query().Where<ArchivedLinkPartRecord>(link => link.OriginalUrl == originalUrl).List().FirstOrDefault();
-                    if (archivedLinkPart != null)
+                    var archivedLink = _contentManager.Query().Where<ArchivedLinkPartRecord>(link => link.OriginalUrl == originalUrl).Slice(0, 1).SingleOrDefault();
+                    if (archivedLink != null)
                     {
-                        var commonPart = archivedLinkPart.As<CommonPart>();
+                        var commonPart = archivedLink.As<CommonPart>();
                         if (commonPart != null)
                         {
                             var snapshotTaken = commonPart.ModifiedUtc == null ? commonPart.CreatedUtc : commonPart.ModifiedUtc;
@@ -55,7 +55,7 @@ namespace Lombiq.ArchivedLinks.Controllers
                         }
                     }
 
-                    throw new Exception();
+                    return new HttpNotFoundResult();
                 }
             }
             catch (UriFormatException)

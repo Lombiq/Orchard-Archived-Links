@@ -94,7 +94,6 @@
   <ItemGroup>
     <Compile Include="Controllers\ArchivedLinkController.cs" />
     <Compile Include="Handlers\ArchivedLinkHandler.cs" />
-    <Compile Include="Helpers\ArchivedLinkHelper.cs" />
     <Compile Include="Helpers\UriBuilderHelper.cs" />
     <Compile Include="Migrations.cs" />
     <Compile Include="Drivers\ArchivedLinkPartDriver.cs" />

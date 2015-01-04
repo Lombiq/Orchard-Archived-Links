@@ -40,11 +40,11 @@ namespace Lombiq.ArchivedLinks.Services
 
             var contentType = GetContentType(uri);
             ContentTypeHelper(contentType,
-                delegate()
+                () =>
                 {
                     DownloadFile(urlString, uri, folderPath, true);
                 },
-                delegate()
+                () =>
                 {
                     var htmlWeb = new HtmlWeb();
                     var document = htmlWeb.Load(urlString);
@@ -60,7 +60,7 @@ namespace Lombiq.ArchivedLinks.Services
                         document.Save(stream);
                     }
                 },
-                delegate()
+                () =>
                 {
                     throw new NotSupportedException("Uri type not supported");
                 });
@@ -75,18 +75,18 @@ namespace Lombiq.ArchivedLinks.Services
 
             Uri resultUri = null;
             ContentTypeHelper(contentType,
-                delegate()
+                () =>
                 {
                     var filename = Path.GetFileName(uri.LocalPath);
                     var publicUri = new Uri(baseUri, _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), filename)));
                     resultUri = publicUri;
                 },
-                delegate()
+                () =>
                 {
                     var publicUri = new Uri(baseUri, _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), "index.html")));
                     resultUri = publicUri;
                 },
-                delegate()
+                () =>
                 {
                     resultUri = null;
                 });
@@ -207,7 +207,7 @@ namespace Lombiq.ArchivedLinks.Services
 
         private string GetContentType(Uri uri)
         {
-            var request = WebRequest.Create(uri.ToString());
+            var request = WebRequest.Create(uri);
             request.Method = "HEAD";
 
             var response = request.GetResponse();

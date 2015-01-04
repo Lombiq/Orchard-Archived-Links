@@ -32,7 +32,7 @@ namespace Lombiq.ArchivedLinks.Drivers
         {
             return ContentShape("Parts_ArchivedLink", () =>
             {
-                Uri uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
+                var uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
                 return shapeHelper.Parts_ArchivedLink(
                     OriginalUrl: part.OriginalUrl,
                     SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri).ToString()
@@ -55,7 +55,7 @@ namespace Lombiq.ArchivedLinks.Drivers
             {
                 try
                 {
-                    Uri uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
+                    var uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
                     _snapshotManager.SaveSnapshot(uri);
                 }
                 catch (UriFormatException)

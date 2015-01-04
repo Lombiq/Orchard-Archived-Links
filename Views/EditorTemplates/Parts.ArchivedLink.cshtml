@@ -3,8 +3,8 @@
 <fieldset>
     <ol>
         <li>
-            @Html.LabelFor(m => m.OriginalUrl)
-            @Html.EditorFor(m => m.OriginalUrl)
+            @Html.LabelFor(m => m.OriginalUrl, T("Original Url:"))
+            @Html.TextBoxFor(m => m.OriginalUrl, new { @class = "text large" })
         </li>
     </ol>
 </fieldset>
