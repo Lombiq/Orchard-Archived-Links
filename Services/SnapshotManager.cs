@@ -39,59 +39,59 @@ namespace Lombiq.ArchivedLinks.Services
             var folderPath = _storageProvider.Combine("_ArchivedLinks", urlString.GetHashCode().ToString());
 
             var contentType = GetContentType(uri);
-            ContentTypeHelper(contentType,
-                () =>
-                {
-                    DownloadFile(urlString, uri, folderPath, true);
-                },
-                () =>
-                {
-                    var htmlWeb = new HtmlWeb();
-                    var document = htmlWeb.Load(urlString);
 
-                    DownloadHtml(ref document, uri, folderPath);
-                    htmlWeb.Get(urlString, "/");
+            var allowableFileContentTypes = new string[] { "application/pdf", "image/jpeg", "image/jpg", "image/png", "image/gif" };
+            if (allowableFileContentTypes.Contains(contentType))
+            {
+                DownloadFile(urlString, uri, folderPath, true);
+            }
+            else if (contentType == "text/html")
+            {
+                var htmlWeb = new HtmlWeb();
+                var document = htmlWeb.Load(urlString);
 
-                    var indexPath = _storageProvider.Combine(folderPath, "index.html");
-                    if (_storageProvider.FileExists(indexPath)) _storageProvider.DeleteFile(indexPath);
+                DownloadHtml(ref document, uri, folderPath);
+                htmlWeb.Get(urlString, "/");
 
-                    using (var stream = _storageProvider.CreateFile(indexPath).OpenWrite())
-                    {
-                        document.Save(stream);
-                    }
-                },
-                () =>
+                var indexPath = _storageProvider.Combine(folderPath, "index.html");
+                if (_storageProvider.FileExists(indexPath)) _storageProvider.DeleteFile(indexPath);
+
+                using (var stream = _storageProvider.CreateFile(indexPath).OpenWrite())
                 {
-                    throw new NotSupportedException("Uri type not supported");
-                });
+                    document.Save(stream);
+                }
+            }
+            else
+            {
+                throw new NotSupportedException("Uri type not supported");
+            }
         }
 
         public Uri GetSnapshotIndexPublicUrl(Uri uri)
         {
-            var contentType = GetContentType(uri);
-
             var uriString = uri.ToString();
+            var folderPath = _storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString());
+
             var baseUri = new Uri(_workContextAccessor.GetContext().CurrentSite.BaseUrl, UriKind.Absolute);
 
-            Uri resultUri = null;
-            ContentTypeHelper(contentType,
-                () =>
+            // Check if snapshot is a file. The name of the file has not been modified during saving.
+            var filename = Path.GetFileName(uri.LocalPath);
+            var snapshotFile = _storageProvider.Combine(folderPath, filename);
+            if (_storageProvider.FileExists(snapshotFile))
+            {
+                return new Uri(baseUri, _storageProvider.GetPublicUrl(_storageProvider.Combine(folderPath, filename)));
+            }
+            else
+            {
+                var indexHtml = _storageProvider.Combine(folderPath, "index.html");
+                if (_storageProvider.FileExists(indexHtml))
                 {
-                    var filename = Path.GetFileName(uri.LocalPath);
-                    var publicUri = new Uri(baseUri, _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), filename)));
-                    resultUri = publicUri;
-                },
-                () =>
-                {
-                    var publicUri = new Uri(baseUri, _storageProvider.GetPublicUrl(_storageProvider.Combine(_storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString()), "index.html")));
-                    resultUri = publicUri;
-                },
-                () =>
-                {
-                    resultUri = null;
-                });
+                    // This is html.
+                    return new Uri(baseUri, _storageProvider.GetPublicUrl(indexHtml));
+                }
+            }
 
-            return resultUri;
+            return null;
         }
 
         public async Task<bool> CheckUriIsAvailable(Uri uri)
@@ -218,23 +218,6 @@ namespace Lombiq.ArchivedLinks.Services
                 return "text/html";
 
             return response.ContentType.ToLower();
-        }
-
-        private void ContentTypeHelper(string contentType, Action callbackFile, Action callbackHtml, Action callbackOthers)
-        {
-            var allowableFileContentTypes = new string[] { "application/pdf", "image/jpeg", "image/jpg", "image/png", "image/gif" };
-            if (allowableFileContentTypes.Contains(contentType))
-            {
-                callbackFile();
-            }
-            else if (contentType == "text/html")
-            {
-                callbackHtml();
-            }
-            else
-            {
-                callbackOthers();
-            }
         }
     }
 }
