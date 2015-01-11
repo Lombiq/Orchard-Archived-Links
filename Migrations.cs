@@ -30,8 +30,7 @@ namespace Lombiq.ArchivedLinks
                     .DisplayedAs("Archived Link")
                     .WithPart(typeof(ArchivedLinkPart).Name)
                     .WithPart("CommonPart")
-                    .Creatable()
-                    .Draftable());
+                    .Creatable());
 
             return 1;
         }
