@@ -10,6 +10,7 @@ using System.Web;
 using Orchard.Exceptions;
 using Orchard.Environment.Extensions;
 using Lombiq.ArchivedLinks.Helpers;
+using Orchard.ContentManagement.Handlers;
 
 namespace Lombiq.ArchivedLinks.Drivers
 {
@@ -71,6 +72,16 @@ namespace Lombiq.ArchivedLinks.Drivers
             }
 
             return Editor(part, shapeHelper);
+        }
+
+        protected override void Exporting(ArchivedLinkPart part, ExportContentContext context)
+        {
+            context.Element(part.PartDefinition.Name).SetAttributeValue("OriginalUrl", part.OriginalUrl);
+        }
+
+        protected override void Importing(ArchivedLinkPart part, ImportContentContext context)
+        {
+            context.ImportAttribute(part.PartDefinition.Name, "OriginalUrl", value => part.OriginalUrl = value);
         }
     }
 }

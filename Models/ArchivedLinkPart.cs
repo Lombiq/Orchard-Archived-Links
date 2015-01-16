@@ -12,11 +12,6 @@ using System.Web;
 
 namespace Lombiq.ArchivedLinks.Models
 {
-    public class ArchivedLinkPartRecord : ContentPartRecord
-    {
-        public virtual string OriginalUrl { get; set; }
-    }
-
     public class ArchivedLinkPart : ContentPart<ArchivedLinkPartRecord>
     {
         public string OriginalUrl
@@ -24,5 +19,11 @@ namespace Lombiq.ArchivedLinks.Models
             get { return Retrieve(x => x.OriginalUrl); }
             set { Store(x => x.OriginalUrl, value); }
         }
+    }
+
+
+    public class ArchivedLinkPartRecord : ContentPartRecord
+    {
+        public virtual string OriginalUrl { get; set; }
     }
 }
