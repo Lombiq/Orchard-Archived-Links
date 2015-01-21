@@ -102,7 +102,9 @@
     <Compile Include="Services\SnapshotManager.cs" />
     <Compile Include="ViewModels\SnapshotViewModel.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Readme.md" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Views\ArchivedLink\Index.cshtml" />
   </ItemGroup>
