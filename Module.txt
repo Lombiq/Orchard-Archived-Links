@@ -3,7 +3,7 @@ AntiForgery: enabled
 Author: Lombiq
 Website: http://lombiq.com
 Version: 1.0
-OrchardVersion: 1.10
+OrchardVersion: 1.10.1
 Description: Based on a url saves the html page, its associated images, css and pdf files. The services provides a url that you can use instead of the original resource's url: here the service checks if the original source is available and either redirect to there or returns a previously saved snapshot.
 Features:
 	Lombiq.ArchivedLinks
