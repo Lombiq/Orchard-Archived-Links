@@ -72,7 +72,7 @@ namespace Lombiq.ArchivedLinks.Services
             var uriString = uri.ToString();
             var folderPath = _storageProvider.Combine("_ArchivedLinks", uriString.GetHashCode().ToString());
 
-            var baseUri = new Uri(_workContextAccessor.GetContext().CurrentSite.BaseUrl, UriKind.Absolute);
+            var baseUri = _workContextAccessor.GetContext().HttpContext.Request.Url;
 
             // Check if snapshot is a file. The name of the file has not been modified during saving.
             var filename = Path.GetFileName(uri.LocalPath);
