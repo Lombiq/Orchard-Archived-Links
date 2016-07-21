@@ -1,19 +1,11 @@
 ﻿using HtmlAgilityPack;
-using Lombiq.ArchivedLinks.Models;
 using Orchard;
-using Orchard.Data;
-using Orchard.Environment;
 using Orchard.FileSystems.Media;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Security.Cryptography;
-using System.Text;
-using Orchard.Environment.Extensions;
 using System.Threading.Tasks;
 
 namespace Lombiq.ArchivedLinks.Services
