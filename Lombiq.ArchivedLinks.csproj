@@ -100,6 +100,7 @@
     <Compile Include="Migrations.cs" />
     <Compile Include="Drivers\ArchivedLinkPartDriver.cs" />
     <Compile Include="Models\ArchivedLinkPart.cs" />
+    <Compile Include="Routes\ArchivedLinkRouteProvider.cs" />
     <Compile Include="Services\ISnapshotManager.cs" />
     <Compile Include="Services\SnapshotManager.cs" />
     <Compile Include="ViewModels\SnapshotViewModel.cs" />
@@ -157,4 +158,5 @@
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
 </Project>
