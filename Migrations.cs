@@ -24,7 +24,8 @@ namespace Lombiq.ArchivedLinks
                     .DisplayedAs("Archived Link")
                     .WithPart(typeof(ArchivedLinkPart).Name)
                     .WithPart("CommonPart")
-                    .Creatable());
+                    .Creatable()
+                    .Listable());
 
             return 1;
         }
