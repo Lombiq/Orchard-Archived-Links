@@ -7,6 +7,7 @@ using System;
 using Orchard.Exceptions;
 using Lombiq.ArchivedLinks.Helpers;
 using Orchard.ContentManagement.Handlers;
+using Lombiq.ArchivedLinks.ViewModels;
 
 namespace Lombiq.ArchivedLinks.Drivers
 {
@@ -39,11 +40,37 @@ namespace Lombiq.ArchivedLinks.Drivers
 
         protected override DriverResult Editor(ArchivedLinkPart part, dynamic shapeHelper)
         {
-            return ContentShape("Parts_ArchivedLink_Edit",
-                () => shapeHelper.EditorTemplate(
-                    TemplateName: "Parts.ArchivedLink",
-                    Model: part,
-                    Prefix: Prefix));
+            if (part.IsNew() || string.IsNullOrEmpty(part.OriginalUrl))
+            {
+                return ContentShape("Parts_ArchivedLink_Edit",
+                   () => shapeHelper.EditorTemplate(
+                       TemplateName: "Parts.ArchivedLink",
+                       Model: part,
+                       Prefix: Prefix));
+            }
+
+            var uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
+            var snapshotUrl = _snapshotManager.GetSnapshotIndexPublicUrl(uri).ToString();
+
+            var model = new ArchivedLinkViewModel()
+            {
+                OriginalUrl = part.OriginalUrl,
+                SnapshotUrl = snapshotUrl
+            };
+
+            return Combined(
+
+                ContentShape("Parts_ArchivedLink_Edit",
+                  () => shapeHelper.EditorTemplate(
+                      TemplateName: "Parts.ArchivedLink",
+                      Model: part,
+                      Prefix: Prefix)),
+                ContentShape("Parts_ArchivedLink_Edit",
+                  () => shapeHelper.EditorTemplate(
+                      TemplateName: "Parts.ArchivedLink.Edit",
+                      Model: model,
+                      Prefix: Prefix)));
+
         }
 
         protected override DriverResult Editor(ArchivedLinkPart part, IUpdateModel updater, dynamic shapeHelper)

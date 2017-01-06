@@ -126,6 +126,7 @@
     <Compile Include="Models\ArchivedLinkPart.cs" />
     <Compile Include="Services\ISnapshotManager.cs" />
     <Compile Include="Services\SnapshotManager.cs" />
+    <Compile Include="ViewModels\ArchivedLinkViewModel.cs" />
     <Compile Include="ViewModels\SnapshotViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -182,6 +183,6 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Routes\" />
+    <Content Include="Views\EditorTemplates\Parts.ArchivedLink.Edit.cshtml" />
   </ItemGroup>
 </Project>
