@@ -26,13 +26,12 @@ namespace Lombiq.ArchivedLinks.Routes
                 {
                     Priority = 5,
                     Route = new Route(
-                        "jumpifworking/{originalUrl}",
+                        "jumpifworking",
                         new RouteValueDictionary
                         {
                             { "area", Area },
                             { "controller", Controller },
-                            { "action", "Index" },
-                            { "originalUrl", UrlParameter.Optional}
+                            { "action", "Index" }
                         },
                         new RouteValueDictionary(),
                         new RouteValueDictionary

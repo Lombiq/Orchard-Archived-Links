@@ -26,7 +26,7 @@ namespace Lombiq.ArchivedLinks.Controllers
         }
 
 
-        public async Task<ActionResult> Index(string originalUrl)
+        public async Task<ActionResult> Index(string originalUrl = null)
         {
             try
             {
