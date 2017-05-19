@@ -186,4 +186,7 @@
   <ItemGroup>
     <Content Include="Views\EditorTemplates\Parts.ArchivedLink.Edit.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Parts\ArchivedLink.SummaryAdmin.cshtml" />
+  </ItemGroup>
 </Project>

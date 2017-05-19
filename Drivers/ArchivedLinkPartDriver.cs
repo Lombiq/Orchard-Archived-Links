@@ -28,14 +28,17 @@ namespace Lombiq.ArchivedLinks.Drivers
 
         protected override DriverResult Display(ArchivedLinkPart part, string displayType, dynamic shapeHelper)
         {
-            return ContentShape("Parts_ArchivedLink", () =>
-            {
-                var uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
-                return shapeHelper.Parts_ArchivedLink(
-                    OriginalUrl: part.OriginalUrl,
-                    SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri).ToString()
-                );
-            });
+            return Combined(
+                ContentShape("Parts_ArchivedLink", () =>
+                {
+                    var uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
+                    return shapeHelper.Parts_ArchivedLink(
+                        OriginalUrl: part.OriginalUrl,
+                        SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri).ToString()
+                    );
+                }),
+                ContentShape("Parts_ArchivedLink_SummaryAdmin", () => shapeHelper.Parts_ArchivedLink_SummaryAdmin())
+            );
         }
 
         protected override DriverResult Editor(ArchivedLinkPart part, dynamic shapeHelper)

@@ -1,0 +1,10 @@
+﻿@using Orchard.ContentManagement
+@using Lombiq.ArchivedLinks.Models
+@using Lombiq.ArchivedLinks.Helpers
+
+@{
+    var archivedLinkPart = (Model.ContentItem as ContentItem).As<ArchivedLinkPart>();
+    var originalUrl = UriBuilderHelper.TryCreateUri(archivedLinkPart.OriginalUrl).ToString();
+}
+
+<p>@T("Original Url: {0}", Html.Link(originalUrl, originalUrl))</p>

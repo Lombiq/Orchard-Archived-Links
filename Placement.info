@@ -2,6 +2,12 @@
   <Match DisplayType="Detail">
     <Place Parts_ArchivedLink="Content:10"/>
   </Match>
-  
+
+  <Match ContentType="ArchivedLink">
+    <Match DisplayType = "SummaryAdmin">
+      <Place Parts_ArchivedLink_SummaryAdmin = "Content:after" />
+    </Match>
+  </Match>
+
   <Place Parts_ArchivedLink_Edit="Content:10"/>  
 </Placement>
