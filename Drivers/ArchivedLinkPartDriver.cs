@@ -1,13 +1,13 @@
-﻿using Lombiq.ArchivedLinks.Models;
+﻿using System;
+using Lombiq.ArchivedLinks.Helpers;
+using Lombiq.ArchivedLinks.Models;
 using Lombiq.ArchivedLinks.Services;
+using Lombiq.ArchivedLinks.ViewModels;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
-using Orchard.Localization;
-using System;
-using Orchard.Exceptions;
-using Lombiq.ArchivedLinks.Helpers;
 using Orchard.ContentManagement.Handlers;
-using Lombiq.ArchivedLinks.ViewModels;
+using Orchard.Exceptions;
+using Orchard.Localization;
 
 namespace Lombiq.ArchivedLinks.Drivers
 {
@@ -26,9 +26,8 @@ namespace Lombiq.ArchivedLinks.Drivers
         }
 
 
-        protected override DriverResult Display(ArchivedLinkPart part, string displayType, dynamic shapeHelper)
-        {
-            return Combined(
+        protected override DriverResult Display(ArchivedLinkPart part, string displayType, dynamic shapeHelper) =>
+            Combined(
                 ContentShape("Parts_ArchivedLink", () =>
                 {
                     var uri = UriBuilderHelper.TryCreateUri(part.OriginalUrl);
@@ -37,9 +36,7 @@ namespace Lombiq.ArchivedLinks.Drivers
                         SnapshotUrl: _snapshotManager.GetSnapshotIndexPublicUrl(uri).ToString()
                     );
                 }),
-                ContentShape("Parts_ArchivedLink_SummaryAdmin", () => shapeHelper.Parts_ArchivedLink_SummaryAdmin())
-            );
-        }
+                ContentShape("Parts_ArchivedLink_SummaryAdmin", () => shapeHelper.Parts_ArchivedLink_SummaryAdmin()));
 
         protected override DriverResult Editor(ArchivedLinkPart part, dynamic shapeHelper)
         {
@@ -62,7 +59,6 @@ namespace Lombiq.ArchivedLinks.Drivers
             };
 
             return Combined(
-
                 ContentShape("Parts_ArchivedLink_Edit",
                   () => shapeHelper.EditorTemplate(
                       TemplateName: "Parts.ArchivedLink",
@@ -73,7 +69,6 @@ namespace Lombiq.ArchivedLinks.Drivers
                       TemplateName: "Parts.ArchivedLink.Edit",
                       Model: model,
                       Prefix: Prefix)));
-
         }
 
         protected override DriverResult Editor(ArchivedLinkPart part, IUpdateModel updater, dynamic shapeHelper)

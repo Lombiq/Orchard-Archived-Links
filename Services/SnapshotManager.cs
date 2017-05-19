@@ -167,6 +167,13 @@ namespace Lombiq.ArchivedLinks.Services
                 }
             }
 
+            var invalidFileNameChars = Path.GetInvalidFileNameChars();
+
+            if (destinationFolder.Any(c => invalidFileNameChars.Contains(c)))
+            {
+                destinationFolder = new string(destinationFolder.Select(c => invalidFileNameChars.Contains(c) ? '-' : c).ToArray());
+            }
+
             if (!_storageProvider.FolderExists(destinationFolder)) _storageProvider.CreateFolder(destinationFolder);
 
             var filename = Path.GetFileName(currentUri.LocalPath);
