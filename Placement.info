@@ -4,8 +4,8 @@
   </Match>
 
   <Match ContentType="ArchivedLink">
-    <Match DisplayType = "SummaryAdmin">
-      <Place Parts_ArchivedLink_SummaryAdmin = "Content:after" />
+    <Match DisplayType="SummaryAdmin">
+      <Place Parts_ArchivedLink_SummaryAdmin="Content:after" />
     </Match>
   </Match>
 
