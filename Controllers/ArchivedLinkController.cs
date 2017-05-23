@@ -38,7 +38,11 @@ namespace Lombiq.ArchivedLinks.Controllers
                 }
                 else
                 {
-                    var archivedLink = _contentManager.Query().Where<ArchivedLinkPartRecord>(link => link.OriginalUrl == originalUrl).Slice(1).SingleOrDefault();
+                    var archivedLink = _contentManager
+                        .Query()
+                        .Where<ArchivedLinkPartRecord>(link => link.OriginalUrl == originalUrl)
+                        .Slice(1)
+                        .SingleOrDefault();
                     if (archivedLink != null)
                     {
                         var commonPart = archivedLink.As<CommonPart>();
