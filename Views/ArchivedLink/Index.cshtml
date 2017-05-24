@@ -1,9 +1,6 @@
 ﻿@model Lombiq.ArchivedLinks.ViewModels.SnapshotViewModel
 
-<header>
-    @T("Snapshot taken at: {0}", Model.SnapshotTaken)
-</header>
-
-<div class="lombiq-archivedlinks-snapshot-iframe-wrapper">
-    <iframe src="@Model.SnapshotIndexPublicUrl"></iframe>
+<div class="lombiq-archivedlinks-snapshot-access">
+    <p>@T("Snapshot taken at: {0}", Model.SnapshotTaken)</p>
+    <p>@Html.Link(T("Open in new tab").Text, Model.SnapshotIndexPublicUrl.ToString())</p>
 </div>
