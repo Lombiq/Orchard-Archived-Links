@@ -2,5 +2,5 @@
 
 <div class="lombiq-archivedlinks-snapshot-access">
     <p>@T("Snapshot taken at: {0}", Model.SnapshotTaken)</p>
-    <p>@Html.Link(T("Open in new tab").Text, Model.SnapshotIndexPublicUrl.ToString())</p>
+    <p>@Html.Link(T("Open in new tab").Text, Model.SnapshotIndexPublicUrl.ToString(), new { target = "_blank" })</p>
 </div>
