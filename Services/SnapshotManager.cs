@@ -171,7 +171,9 @@ namespace Lombiq.ArchivedLinks.Services
 
             if (destinationFolder.Any(c => invalidFileNameChars.Contains(c)))
             {
-                destinationFolder = new string(destinationFolder.Select(c => invalidFileNameChars.Contains(c) ? '-' : c).ToArray());
+                destinationFolder = new string(
+                    destinationFolder.Replace("-", "--")
+                    .Select(c => invalidFileNameChars.Contains(c) ? '-' : c).ToArray());
             }
 
             if (!_storageProvider.FolderExists(destinationFolder)) _storageProvider.CreateFolder(destinationFolder);
