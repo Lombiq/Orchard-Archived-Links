@@ -1,6 +1,13 @@
 ﻿@model Lombiq.ArchivedLinks.ViewModels.SnapshotViewModel
 
 <div class="lombiq-archivedlinks-snapshot-access">
-    <p>@T("Snapshot taken at: {0}", Model.SnapshotTaken)</p>
-    <p>@Html.Link(T("Open in new tab").Text, Model.SnapshotIndexPublicUrl.ToString(), new { target = "_blank" })</p>
+    <p>
+        <b>@T("The target site is down, so here's a snapshot of what was under the URL.")</b><br>
+        @T("Snapshot taken at: {0}", Model.SnapshotTaken)<br>
+        @Html.Link(T("Open in new tab").Text, Model.SnapshotIndexPublicUrl.ToString(), new { target = "_blank" })
+    </p>
+
+    <div class="lombiq-archivedlinks-snapshot-iframe-wrapper">
+        <iframe sandbox src="@Model.SnapshotIndexPublicUrl"></iframe>
+    </div>
 </div>
