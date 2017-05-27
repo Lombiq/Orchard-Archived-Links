@@ -2,7 +2,7 @@
 
 <div class="lombiq-archivedlinks-snapshot-access">
     <p>
-        <b>@T("The target site is down, so here's a snapshot of what was under the URL.")</b><br>
+        <strong>@T("The target site is down, so here's a snapshot of what was under the URL.")</strong><br>
         @T("Snapshot taken at: {0}", Model.SnapshotTaken)<br>
         @Html.Link(T("Open in new tab").Text, Model.SnapshotIndexPublicUrl.ToString(), new { target = "_blank" })
     </p>
